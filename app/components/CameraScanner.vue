@@ -36,6 +36,10 @@
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, ref } from 'vue'
 
+const emit = defineEmits<{
+  (e: 'scanned', code: string): void
+}>()
+
 const video = ref<HTMLVideoElement | null>(null)
 const canvas = ref<HTMLCanvasElement | null>(null)
 const stream = ref<MediaStream | null>(null)
@@ -108,6 +112,7 @@ async function tick() {
         if (codes?.length) {
           result.value = codes[0].rawValue || ''
           message.value = 'QR terdeteksi'
+          if (result.value) emit('scanned', result.value)
           stopCamera()
           return
         }

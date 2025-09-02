@@ -5,4 +5,4 @@
 :root { color-scheme: light; }
 html, body, #__nuxt { height: 100%; }
 
-/* Note: component-specific styles use inline Tailwind classes */
+/* Mobile bottom nav styles moved to inline Tailwind classes in component */
