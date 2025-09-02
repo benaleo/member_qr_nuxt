@@ -26,6 +26,10 @@ async function onSubmit() {
     // Store token and roles for subsequent requests
     const tokenCookie = useCookie('auth_token', { sameSite: 'lax' })
     tokenCookie.value = res.token
+    const userIdCookie = useCookie('auth_user_id', { sameSite: 'lax' })
+    // ensure string storage for cookie
+    // @ts-ignore - backend may return number
+    userIdCookie.value = String((res.user as any).id ?? '')
     // Support both shapes: user.roles (Role[]) or user.role (Role | string)
     const rolesField: any = (res.user as any).roles ?? (res.user as any).role ?? []
     let roleNames: string[] = []

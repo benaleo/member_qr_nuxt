@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { navigateTo, useCookie } from 'nuxt/app'
-import MobileNav from '~/components/MobileNav.vue'
 
 const logout = () => {
   const token = useCookie('auth_token')
   const roles = useCookie('auth_roles')
+  const role = useCookie('auth_role')
+  const userId = useCookie('auth_user_id')
   token.value = null
   roles.value = null
+  role.value = null
+  userId.value = null
   navigateTo('/login')
 }
 definePageMeta({ layout: 'mobile' })
@@ -24,5 +27,4 @@ definePageMeta({ layout: 'mobile' })
       </div>
     </UCard>
   </div>
-  <MobileNav />
 </template>

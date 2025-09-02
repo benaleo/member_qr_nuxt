@@ -52,8 +52,8 @@ export default defineNuxtRouteMiddleware((to) => {
     return navigateTo(isAdmin ? '/console' : '/home')
   }
 
-  // Admin-only route protection
-  if (to.path === '/console') {
+  // Admin-only route protection for /console and all subpaths
+  if (to.path === '/console' || to.path.startsWith('/console/')) {
     const names = parseRoleNames()
     const isAdmin = hasAdmin(names)
     if (!isAdmin) return navigateTo('/home')
