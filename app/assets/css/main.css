@@ -6,3 +6,6 @@
 html, body, #__nuxt { height: 100%; }
 
 /* Note: component-specific styles use inline Tailwind classes */
+.form-input {
+  @apply w-full bg-white text-slate-700 placeholder:text-slate-400 border border-gray-300 rounded-md focus:ring-primary focus:border-primary;
+}

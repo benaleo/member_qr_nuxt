@@ -47,6 +47,29 @@ query GetGamification {
 const GET_BY_CODE = /* GraphQL */ `
 query GetByCode($code: String!) {
   getGamificationsByCode(code: $code) { id name point description }
+}
+`
+
+// Create Gamification (from user-provided schema)
+const CREATE_GAMIFICATION = /* GraphQL */ `
+mutation CreateGamification(
+  $name: String!
+  $description: String
+  $point: Int!
+  $code: String!
+){
+  createGamification(
+    name: $name
+    description: $description
+    point: $point
+    code: $code
+  ){
+    id
+    name
+    code
+    point
+    description
+  }
 }`
 
 const EXIST_USER_IN_GAMIFICATION = /* GraphQL */ `
@@ -141,4 +164,11 @@ export async function createLogGamification(
   }
   const data = await gqlFetch<{ createLogGamification: LogItem }>(CREATE_LOG_GAMIFICATION, variables)
   return data.createLogGamification
+}
+
+// Create a new gamification
+export async function createGamification(name: string, point: number, code: string, description?: string) {
+  const vars = { name, point, code, description: description ?? null }
+  const data = await gqlFetch<{ createGamification: Gamification }>(CREATE_GAMIFICATION, vars)
+  return data.createGamification
 }
