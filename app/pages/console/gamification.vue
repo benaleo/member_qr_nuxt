@@ -6,6 +6,7 @@ import {
   getGamifications,
   createGamification,
   type Gamification,
+  updateGamification,
 } from "@/api/gamification-api";
 
 const loading = ref(false);
@@ -19,6 +20,17 @@ const showCreate = ref(false);
 const form = ref({ name: "", description: "", point: 0, code: "" });
 const creating = ref(false);
 const confirmDeleteId = ref<number | null>(null);
+
+// Edit modal state
+const showEdit = ref(false);
+const editForm = ref<{
+  id: number | null;
+  name: string;
+  description: string;
+  point: number;
+  code: string;
+}>({ id: null, name: "", description: "", point: 0, code: "" });
+const updating = ref(false);
 
 function qrUrl(code?: string) {
   if (!code) return "";
@@ -134,8 +146,43 @@ async function confirmDelete() {
   confirmDeleteId.value = null;
 }
 
-function notifyEdit() {
-  window.alert("Edit belum diimplementasikan");
+function openEdit(item: Gamification) {
+  editForm.value = {
+    id: item.id,
+    name: item.name ?? "",
+    description: item.description ?? "",
+    point: Number(item.point) || 0,
+    code: item.code ?? "",
+  };
+  showEdit.value = true;
+}
+
+async function submitEdit() {
+  if (!editForm.value.id) return;
+  if (
+    !editForm.value.name?.trim() ||
+    !editForm.value.code?.trim() ||
+    !Number.isFinite(editForm.value.point)
+  ) {
+    window.alert("Lengkapi form edit (name, code, point)");
+    return;
+  }
+  updating.value = true;
+  try {
+    await updateGamification(
+      Number(editForm.value.id),
+      editForm.value.name.trim(),
+      Number(editForm.value.point),
+      editForm.value.code.trim(),
+      editForm.value.description?.trim() || undefined
+    );
+    showEdit.value = false;
+    await load();
+  } catch (e: any) {
+    window.alert(e?.message || "Gagal mengubah data");
+  } finally {
+    updating.value = false;
+  }
 }
 </script>
 
@@ -174,12 +221,10 @@ function notifyEdit() {
 
       <div class="grid gap-4 sm:grid-cols-2">
         <UCard v-for="item in list" :key="item.id" class="overflow-hidden">
-          <template #header>
-            <div class="flex items-center justify-between">
-              <div class="font-semibold">{{ item.name }}</div>
-              <div class="text-pink-600 text-sm">+{{ item.point }} poin</div>
-            </div>
-          </template>
+          <div class="flex items-center justify-between">
+            <div class="font-semibold">{{ item.name }}</div>
+            <div class="text-pink-600 text-sm">+{{ item.point }} poin</div>
+          </div>
           <div class="grid gap-3 items-center">
             <div class="flex justify-center">
               <div class="bg-white p-4 rounded-xl">
@@ -198,7 +243,7 @@ function notifyEdit() {
                 color="neutral"
                 variant="soft"
                 icon="i-heroicons-pencil-square"
-                @click="notifyEdit"
+                @click="openEdit(item)"
               />
               <UButton
                 size="sm"
@@ -294,6 +339,66 @@ function notifyEdit() {
             <UButton color="error" @click="confirmDelete">Hapus</UButton>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div
+    v-if="showEdit"
+    class="fixed inset-0 z-50 grid place-items-center bg-black/50"
+  >
+    <div
+      class="w-full max-w-md bg-white text-slate-700 rounded-xl shadow-lg overflow-hidden"
+    >
+      <div class="px-4 py-3 border-b flex items-center justify-between">
+        <div class="font-semibold">Edit Gamification</div>
+        <UButton
+          color="neutral"
+          variant="ghost"
+          icon="i-heroicons-x-mark"
+          @click="showEdit = false"
+        />
+      </div>
+      <div class="p-4 grid gap-3">
+        <UFormGroup label="Name">
+          <UInput
+            class="form-input"
+            v-model="editForm.name"
+            placeholder="Nama"
+          />
+        </UFormGroup>
+        <UFormGroup label="Description">
+          <UInput
+            class="form-input"
+            v-model="editForm.description"
+            placeholder="Deskripsi"
+          />
+        </UFormGroup>
+        <UFormGroup label="Point">
+          <UInput
+            class="form-input"
+            v-model.number="editForm.point"
+            type="number"
+            min="0"
+            placeholder="Poin"
+          />
+        </UFormGroup>
+        <UFormGroup label="Code">
+          <UInput
+            class="form-input"
+            v-model="editForm.code"
+            placeholder="Kode unik"
+          />
+        </UFormGroup>
+      </div>
+      <div class="px-4 py-3 border-t flex justify-end gap-2">
+        <UButton color="neutral" variant="soft" @click="showEdit = false"
+          >Batal</UButton
+        >
+        <UButton color="primary" :loading="updating" @click="submitEdit"
+          >Update</UButton
+        >
       </div>
     </div>
   </div>

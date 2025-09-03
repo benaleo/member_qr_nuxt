@@ -44,6 +44,30 @@ query GetGamification {
   }
 }`
 
+// Update Gamification
+const EDIT_GAMIFICATION = /* GraphQL */ `
+mutation EditGamification(
+  $id: Int!
+  $name: String!
+  $description: String
+  $point: Int!
+  $code: String!
+){
+  updateGamification(
+    id: $id
+    name: $name
+    description: $description
+    point: $point
+    code: $code
+  ){
+    id
+    name
+    code
+    point
+    description
+  }
+}`
+
 const GET_BY_CODE = /* GraphQL */ `
 query GetByCode($code: String!) {
   getGamificationsByCode(code: $code) { id name point description }
@@ -171,4 +195,17 @@ export async function createGamification(name: string, point: number, code: stri
   const vars = { name, point, code, description: description ?? null }
   const data = await gqlFetch<{ createGamification: Gamification }>(CREATE_GAMIFICATION, vars)
   return data.createGamification
+}
+
+// Edit an existing gamification
+export async function updateGamification(
+  id: number,
+  name: string,
+  point: number,
+  code: string,
+  description?: string
+) {
+  const vars = { id, name, point, code, description: description ?? null }
+  const data = await gqlFetch<{ updateGamification: Gamification }>(EDIT_GAMIFICATION, vars)
+  return data.updateGamification
 }
