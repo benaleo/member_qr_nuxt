@@ -7,11 +7,63 @@ import { getGamifications, type Gamification } from '@/api/gamification-api'
 const loading = ref(false)
 const error = ref('')
 const list = ref<Gamification[]>([])
+// Map of code -> image src (dataURL or remote URL)
+const qrSrcMap = ref<Record<string, string>>({})
 
 function qrUrl(code?: string) {
   if (!code) return ''
   // Generate QR via public API (no dependency). Size 200x200.
   return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(code)}`
+}
+
+function cacheKey(code: string) {
+  return `qr_img:${code}`
+}
+
+function loadFromCache(code: string): string | null {
+  try {
+    return localStorage.getItem(cacheKey(code))
+  } catch {
+    return null
+  }
+}
+
+async function fetchAndCacheQr(code: string) {
+  const url = qrUrl(code)
+  try {
+    const res = await fetch(url, { cache: 'force-cache' })
+    if (!res.ok) throw new Error('Gagal mengambil QR')
+    const blob = await res.blob()
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onloadend = () => resolve(String(reader.result))
+      reader.onerror = reject
+      reader.readAsDataURL(blob)
+    })
+    try {
+      localStorage.setItem(cacheKey(code), dataUrl)
+    } catch {
+      // ignore quota errors
+    }
+    qrSrcMap.value[code] = dataUrl
+  } catch {
+    // On failure, fall back to remote URL
+    qrSrcMap.value[code] = url
+  }
+}
+
+async function ensureQrForList(items: Gamification[]) {
+  const codes = items.map(i => i.code).filter((c): c is string => !!c)
+  for (const code of codes) {
+    const cached = loadFromCache(code)
+    if (cached) {
+      qrSrcMap.value[code] = cached
+    } else {
+      // optimistic show remote url while fetching and caching
+      qrSrcMap.value[code] = qrUrl(code)
+      fetchAndCacheQr(code)
+    }
+  }
 }
 
 async function load() {
@@ -20,6 +72,7 @@ async function load() {
   try {
     const res = await getGamifications()
     list.value = res.items || []
+    await ensureQrForList(list.value)
   } catch (e: any) {
     error.value = e?.message || 'Gagal memuat data.'
   } finally {
@@ -52,7 +105,7 @@ onMounted(load)
           </template>
           <div class="grid gap-3 items-center">
             <div class="justify-center p-4 bg-white rounded">
-              <img v-if="item.code" :src="qrUrl(item.code)" alt="QR" class="w-full aspect-square rounded border" />
+              <img v-if="item.code" :src="qrSrcMap[item.code] || qrUrl(item.code)" alt="QR" class="w-full aspect-square rounded border" />
               <div v-else class="text-xs text-gray-400">Tidak ada kode</div>
             </div>
           </div>

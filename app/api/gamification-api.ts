@@ -68,10 +68,22 @@ query getLogGamification($input: PaginationInput!, $user_id: Int!) {
   }
 }`
 
-// Mutation (adjust field names to your backend if needed)
+// Mutation (adjusted to backend: separate arguments, no input object)
 const CREATE_LOG_GAMIFICATION = /* GraphQL */ `
-mutation CreateLogGamification($input: CreateLogGamificationInput!) {
-  createLogGamification(input: $input) {
+mutation CreateLogGamification(
+  $user_id: Int!
+  $gamification_id: Int!
+  $message: String!
+  $point: Int!
+  $date: String!
+) {
+  createLogGamification(
+    user_id: $user_id
+    gamification_id: $gamification_id
+    message: $message
+    point: $point
+    date: $date
+  ) {
     id
     message
     point
@@ -113,9 +125,20 @@ export async function getLogGamifications(userId: number, page = 1, limit = 10) 
 }
 
 // Create log after successful validation
-export async function createLogGamification(userId: number, gamificationId: number, date: string, message?: string) {
-  // The input shape may differ on your backend; adjust keys accordingly
-  const input = { user_id: userId, gamification_id: gamificationId, date, message }
-  const data = await gqlFetch<{ createLogGamification: LogItem }>(CREATE_LOG_GAMIFICATION, { input })
+export async function createLogGamification(
+  userId: number,
+  gamificationId: number,
+  date: string,
+  message?: string,
+  point?: number
+) {
+  const variables = {
+    user_id: userId,
+    gamification_id: gamificationId,
+    date,
+    message: message ?? '',
+    point: point ?? 0,
+  }
+  const data = await gqlFetch<{ createLogGamification: LogItem }>(CREATE_LOG_GAMIFICATION, variables)
   return data.createLogGamification
 }
