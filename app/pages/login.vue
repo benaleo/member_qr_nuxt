@@ -3,6 +3,7 @@ import { reactive, ref } from 'vue'
 import { loginApi } from '@/api/auth-api'
 import type { LoginInput } from '@/api/auth-api'
 import { navigateTo, useCookie } from 'nuxt/app'
+import { toast } from 'vue-sonner'
 
 const form = reactive<LoginInput>({ username: '', password: '' })
 const showPassword = ref(false)
@@ -50,7 +51,8 @@ async function onSubmit() {
     await new Promise(r => setTimeout(r, 500))
     await navigateTo(target)
   } catch (err: any) {
-    errorMessage.value = err?.message || 'Login gagal.'
+    // errorMessage.value = err?.message || 'Login gagal.'
+    toast.error(err?.message || 'Login gagal.', { position: 'top-center'})
   } finally {
     loading.value = false
   }
@@ -58,18 +60,19 @@ async function onSubmit() {
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center p-4 bg-gray-50">
-    <div class="w-full max-w-sm space-y-6">
+  <div class="min-h-screen flex items-center justify-center p-4 bg-gray-50 text-slate-700">
+    <div class="w-full max-w-sm space-y-6 outline-2 outline-gray-200 px-12 py-8 rounded-lg">
       <h1 class="text-center text-2xl font-semibold">Masuk</h1>
 
       <UForm :state="form" @submit="onSubmit">
-        <div class="space-y-4">
+        <div class="grid gap-1">
           <UFormGroup label="Username" name="username">
-            <UInput v-model="form.username" placeholder="Username" autocomplete="username" size="lg" />
+            <UInput class="form-input" v-model="form.username" placeholder="Username" autocomplete="username" size="lg" />
           </UFormGroup>
 
           <UFormGroup label="Password" name="password">
             <UInput
+              class="form-input"
               :type="showPassword ? 'text' : 'password'"
               v-model="form.password"
               placeholder="Password"
