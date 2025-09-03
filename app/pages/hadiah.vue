@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import MobileNav from '~/components/MobileNav.vue';
+
 definePageMeta({ layout: 'mobile' })
 </script>
 
@@ -9,4 +11,5 @@ definePageMeta({ layout: 'mobile' })
       <p class="text-sm text-gray-600">Daftar hadiah akan tampil di sini.</p>
     </UCard>
   </div>
+  <MobileNav/>
 </template>

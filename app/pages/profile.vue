@@ -27,4 +27,5 @@ definePageMeta({ layout: 'mobile' })
       </div>
     </UCard>
   </div>
+  <MobileNav/>
 </template>

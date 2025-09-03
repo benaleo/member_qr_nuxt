@@ -69,4 +69,5 @@ onMounted(() => load(1))
       </div>
     </div>
   </div>
+  <MobileNav/>
 </template>
