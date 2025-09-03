@@ -11,35 +11,11 @@ export type GraphQLResponse<T> = {
   errors?: GraphQLErrorItem[]
 }
 
-async function gqlFetch<T>(query: string, variables?: Record<string, any>): Promise<T> {
-  const config = useRuntimeConfig()
-  const endpoint = config.public.graphqlEndpoint
-  if (!endpoint) throw new Error('GraphQL endpoint not configured')
-
-  const token = useCookie<string | null>('auth_token').value
-
-  const res = await $fetch<GraphQLResponse<T>>(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: { query, variables },
-  })
-
-  if (res.errors?.length) {
-    const message = res.errors.map(e => e.message).join('; ')
-    throw new Error(message || 'GraphQL error')
-  }
-  if (!res.data) throw new Error('No data')
-  return res.data
-}
-
 // Queries / Mutations
 const GET_USERS = /* GraphQL */ `
 query GetUser($keyword: String, $input: PaginationInput!) {
   getUsers(input: $input, keyword: $keyword) {
-    items { id name username avatar }
+    items { id name username avatar is_active }
     page_info { current_page }
   }
 }`
@@ -53,6 +29,7 @@ mutation ApprovalUser($id: Int!, $is_active: Boolean!) {
     name
     username
     avatar
+    is_active
   }
 }`
 
