@@ -27,6 +27,12 @@ function logout() {
           Gamification
         </UCard>
       </NuxtLink>
+       <NuxtLink to="/console/member">
+        <UCard>
+          Member
+        </UCard>
+      </NuxtLink>
+      
     </div>
   </div>
 </template>
