@@ -3,7 +3,7 @@ export default defineNuxtRouteMiddleware((to) => {
   const roles = useCookie<string | null>('auth_roles')
   const role = useCookie<string | null>('auth_role')
 
-  const isPublic = to.path === '/' || to.path === '/login'
+  const isPublic = to.path === '/' || to.path === '/login' || to.path === '/register'
 
   function parseRoleNames(): string[] {
     try {
@@ -39,13 +39,13 @@ export default defineNuxtRouteMiddleware((to) => {
     return names.some((n) => n === 'ADMIN' || n === 'SUPERADMIN')
   }
 
-  // Not logged in → allow only '/' and '/login'
+  // Not logged in → allow only '/' and '/login' and '/register'
   if (!token.value) {
     if (!isPublic) return navigateTo('/login')
     return
   }
 
-  // Logged in → prevent going back to '/' or '/login'
+  // Logged in → prevent going back to '/' or '/login' or '/register'
   if (isPublic) {
     const names = parseRoleNames()
     const isAdmin = hasAdmin(names)

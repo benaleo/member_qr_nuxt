@@ -1,39 +1,4 @@
-import { useRuntimeConfig, useCookie } from 'nuxt/app'
-
-export type GraphQLErrorItem = {
-  message: string
-  path?: (string | number)[]
-  extensions?: Record<string, any>
-}
-
-export type GraphQLResponse<T> = {
-  data?: T
-  errors?: GraphQLErrorItem[]
-}
-
-async function gqlFetch<T>(query: string, variables?: Record<string, any>): Promise<T> {
-  const config = useRuntimeConfig()
-  const endpoint = config.public.graphqlEndpoint
-  if (!endpoint) throw new Error('GraphQL endpoint not configured')
-
-  const token = useCookie<string | null>('auth_token').value
-
-  const res = await $fetch<GraphQLResponse<T>>(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: { query, variables },
-  })
-
-  if (res.errors?.length) {
-    const message = res.errors.map(e => e.message).join('; ')
-    throw new Error(message || 'GraphQL error')
-  }
-  if (!res.data) throw new Error('No data')
-  return res.data
-}
+import { gqlFetch } from '~/utils/graphql'
 
 // Queries
 const GET_GAMIFICATIONS = /* GraphQL */ `
@@ -44,9 +9,56 @@ query GetGamification {
   }
 }`
 
+// Update Gamification
+const EDIT_GAMIFICATION = /* GraphQL */ `
+mutation EditGamification(
+  $id: Int!
+  $name: String!
+  $description: String
+  $point: Int!
+  $code: String!
+){
+  updateGamification(
+    id: $id
+    name: $name
+    description: $description
+    point: $point
+    code: $code
+  ){
+    id
+    name
+    code
+    point
+    description
+  }
+}`
+
 const GET_BY_CODE = /* GraphQL */ `
 query GetByCode($code: String!) {
   getGamificationsByCode(code: $code) { id name point description }
+}
+`
+
+// Create Gamification (from user-provided schema)
+const CREATE_GAMIFICATION = /* GraphQL */ `
+mutation CreateGamification(
+  $name: String!
+  $description: String
+  $point: Int!
+  $code: String!
+){
+  createGamification(
+    name: $name
+    description: $description
+    point: $point
+    code: $code
+  ){
+    id
+    name
+    code
+    point
+    description
+  }
 }`
 
 const EXIST_USER_IN_GAMIFICATION = /* GraphQL */ `
@@ -141,4 +153,24 @@ export async function createLogGamification(
   }
   const data = await gqlFetch<{ createLogGamification: LogItem }>(CREATE_LOG_GAMIFICATION, variables)
   return data.createLogGamification
+}
+
+// Create a new gamification
+export async function createGamification(name: string, point: number, code: string, description?: string) {
+  const vars = { name, point, code, description: description ?? null }
+  const data = await gqlFetch<{ createGamification: Gamification }>(CREATE_GAMIFICATION, vars)
+  return data.createGamification
+}
+
+// Edit an existing gamification
+export async function updateGamification(
+  id: number,
+  name: string,
+  point: number,
+  code: string,
+  description?: string
+) {
+  const vars = { id, name, point, code, description: description ?? null }
+  const data = await gqlFetch<{ updateGamification: Gamification }>(EDIT_GAMIFICATION, vars)
+  return data.updateGamification
 }
