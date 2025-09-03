@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useCookie } from 'nuxt/app'
 import { getGamificationByCode, existsUserInGamification, createLogGamification, type Gamification } from '@/api/gamification-api'
+import MobileNav from '~/components/MobileNav.vue';
 
 definePageMeta({ layout: "mobile" });
 
@@ -9,6 +10,7 @@ const loading = ref(false)
 const lastCode = ref('')
 const lastMessage = ref('')
 const found = ref<Gamification | null>(null)
+const manualCode = ref('')
 
 function formatDateYMD(d = new Date()) {
   const yyyy = d.getFullYear()
@@ -51,7 +53,7 @@ async function onScanned(code: string) {
 
     // Not existed yet – create a log entry
     try {
-      const log = await createLogGamification(userId, Number(gam.id), today, 'Scan QR kehadiran')
+      const log = await createLogGamification(userId, Number(gam.id), today, 'Scan QR kehadiran', gam.point)
       const pts = (log as any)?.point ?? gam.point
       alert(`Berhasil validasi: ${gam.name} (+${pts} poin)`) 
     } catch (e: any) {
@@ -69,7 +71,7 @@ async function onScanned(code: string) {
 </script>
 
 <template>
-  <div class="mx-auto max-w-sm px-4 pt-6 pb-4">
+  <div class="mx-auto max-w-sm px-4 pt-6 pb-36">
     <div class="grid place-items-center mb-4">
       <div class="w-10 h-10 rounded bg-green-100" />
     </div>
@@ -93,5 +95,29 @@ async function onScanned(code: string) {
       <p v-if="lastCode" class="mt-2 text-xs text-gray-500">Kode terakhir: <code>{{ lastCode }}</code></p>
       <p v-if="loading" class="text-xs text-gray-400">Memproses...</p>
     </div>
+
+    <UCard class="mt-4">
+      <template #header>
+        <div class="font-semibold">Masukkan Kode Manual</div>
+      </template>
+      <div class="grid gap-3">
+        <UInput
+          v-model="manualCode"
+          placeholder="Tulis kode di sini"
+          :disabled="loading"
+          @keyup.enter="manualCode && onScanned(manualCode.trim())"
+        />
+        <UButton
+          color="primary"
+          :loading="loading"
+          :disabled="!manualCode.trim() || loading"
+          icon="i-heroicons-check"
+          @click="onScanned(manualCode.trim())"
+        >
+          Validasi Kode
+        </UButton>
+      </div>
+    </UCard>
   </div>
+  <MobileNav/>
 </template>
