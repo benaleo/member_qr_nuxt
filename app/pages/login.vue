@@ -4,6 +4,7 @@ import { loginApi } from '@/api/auth-api'
 import type { LoginInput } from '@/api/auth-api'
 import { navigateTo, useCookie } from 'nuxt/app'
 import { toast } from 'vue-sonner'
+import { NuxtLink } from '#components'
 
 const form = reactive<LoginInput>({ username: '', password: '' })
 const showPassword = ref(false)
@@ -96,6 +97,11 @@ async function onSubmit() {
             Masuk
           </UButton>
         </div>
+
+        <p class="text-sm text-center text-gray-600">
+          Belum punya akun?
+          <NuxtLink to="/register" class="text-primary hover:underline">Daftar di sini</NuxtLink>
+        </p>
       </UForm>
 
       <div v-if="errorMessage" class="text-red-600 text-sm text-center">{{ errorMessage }}</div>

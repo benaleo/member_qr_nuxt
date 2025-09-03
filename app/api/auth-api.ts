@@ -1,7 +1,46 @@
 // Client-side GraphQL API helper for authentication
 // Uses Nuxt runtime config `public.graphqlEndpoint`
 
-import { useRuntimeConfig } from "nuxt/app"
+import { gqlFetch } from '~/utils/graphql'
+
+export type RegisterInput = {
+  name: string
+  username: string
+  password: string
+  email?: string
+}
+
+export type RegisterResponse = {
+  user: {
+    name: string
+    username: string
+    email?: string | null
+  }
+  token: string
+}
+
+const REGISTER = /* GraphQL */ `
+  mutation Register($name: String!, $username: String!, $password: String!, $email: String) {
+    register(
+      name: $name
+      username: $username
+      password: $password
+      email: $email
+    ) {
+      user {
+        name
+        username
+        email
+      }
+      token
+    }
+  }
+`
+
+export async function registerApi(input: RegisterInput): Promise<RegisterResponse> {
+  const data = await gqlFetch<{ register: RegisterResponse }>(REGISTER, input)
+  return data.register
+}
 
 export type LoginInput = {
   username: string
