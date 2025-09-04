@@ -53,7 +53,7 @@ async function onScanned(code: string) {
 
     // Not existed yet – create a log entry
     try {
-      const log = await createLogGamification(userId, Number(gam.id), today, 'Scan QR kehadiran', gam.point)
+      const log = await createLogGamification(userId, Number(gam.id), today, gam.description, gam.point)
       const pts = (log as any)?.point ?? gam.point
       alert(`Berhasil validasi: ${gam.name} (+${pts} poin)`) 
     } catch (e: any) {
