@@ -4,7 +4,11 @@ import { useCookie } from 'nuxt/app'
 import { getGamificationByCode, existsUserInGamification, createLogGamification, type Gamification } from '@/api/gamification-api'
 import MobileNav from '~/components/MobileNav.vue';
 
-definePageMeta({ layout: "mobile" });
+useHead({
+  title: 'Home',
+});
+
+definePageMeta({ layout: 'mobile' })
 
 const loading = ref(false)
 const lastCode = ref('')
@@ -119,5 +123,4 @@ async function onScanned(code: string) {
       </div>
     </UCard>
   </div>
-  <MobileNav/>
 </template>
