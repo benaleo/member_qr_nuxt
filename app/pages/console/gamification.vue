@@ -32,6 +32,23 @@ const editForm = ref<{
 }>({ id: null, name: "", description: "", point: 0, code: "" });
 const updating = ref(false);
 
+// Fullscreen QR state
+const showQrFullscreen = ref(false);
+const currentQrCode = ref<string | null>(null);
+
+function openQrFullscreen(code: string) {
+  currentQrCode.value = code;
+  showQrFullscreen.value = true;
+}
+
+function closeQrFullscreen() {
+  showQrFullscreen.value = false;
+  // Small delay before clearing to allow for smooth transition
+  setTimeout(() => {
+    currentQrCode.value = null;
+  }, 200);
+}
+
 function qrUrl(code?: string) {
   if (!code) return "";
   // Generate QR via public API (no dependency). Size 200x200.
@@ -231,8 +248,9 @@ async function submitEdit() {
                 <img
                   v-if="item.code"
                   :src="qrSrcMap[item.code] || qrUrl(item.code)"
+                  @click="openQrFullscreen(item.code)"
+                  class="cursor-pointer hover:opacity-90 transition-opacity aspect-square rounded border"
                   alt="QR"
-                  class="aspect-square rounded border"
                 />
                 <div v-else class="text-xs text-gray-400">Tidak ada kode</div>
               </div>
@@ -339,6 +357,29 @@ async function submitEdit() {
             <UButton color="error" @click="confirmDelete">Hapus</UButton>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QR Fullscreen Modal -->
+  <div
+    v-if="showQrFullscreen && currentQrCode"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+    @click.self="closeQrFullscreen"
+  >
+    <div class="relative p-8">
+      <button
+        class="absolute -right-3 -top-3 w-12 h-12 flex items-center justify-center aspect-square z-10 rounded-full bg-white p-1 text-gray-800 shadow-lg hover:bg-gray-100"
+        @click="closeQrFullscreen"
+      >
+        <UIcon name="i-heroicons-x-mark" class="h-6 w-6" />
+      </button>
+      <div class="bg-white p-4 rounded-xl">
+        <img
+          :src="qrSrcMap[currentQrCode] || qrUrl(currentQrCode)"
+          :alt="'QR Code ' + currentQrCode"
+          class="max-h-[90vh] max-w-full rounded-lg"
+        />
       </div>
     </div>
   </div>
