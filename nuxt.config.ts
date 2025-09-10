@@ -18,14 +18,14 @@ export default defineNuxtConfig({
     registerType: 'autoUpdate',
     registerWebManifestInRouteRules: true,
     devOptions: {
-      enabled: false
+      enabled: true
     },
     client: {
       installPrompt: true,
     },
     manifest: {
-      name: 'Nuxt App',
-      short_name: 'NuxtApp',
+      name: 'Relextension',
+      short_name: 'Relextension',
       start_url: '/',
       scope: '/',
       display: 'standalone',
@@ -34,7 +34,7 @@ export default defineNuxtConfig({
     },
     // Generate and inject PWA icons/assets from a single source image
     pwaAssets: {
-      image: 'public/logo.svg',
+      image: '../public/pwa-assets/apple-icon-180.png',
       overrideManifestIcons: false
     },
     workbox: {

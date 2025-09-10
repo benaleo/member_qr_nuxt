@@ -9,6 +9,8 @@ import "vue-sonner/style.css";
     <Toaster richColors />
     <!-- Inject PWA manifest, theme-color and icons -->
     <NuxtPwaAssets />
+    <!-- Show an install button when install prompt is available -->
+    <PwaInstallPrompt />
     <NuxtLayout>
       <NuxtRouteAnnouncer />
       <NuxtPage />
