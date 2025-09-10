@@ -10,6 +10,9 @@ const logout = () => {
   roles.value = null
   role.value = null
   userId.value = null
+  if (process.client && typeof window !== 'undefined') {
+    try { window.localStorage.removeItem('auth_token') } catch {}
+  }
   navigateTo('/login')
 }
 definePageMeta({ layout: 'mobile' })

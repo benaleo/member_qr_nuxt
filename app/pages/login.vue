@@ -28,6 +28,10 @@ async function onSubmit() {
     // Store token and roles for subsequent requests
     const tokenCookie = useCookie('auth_token', { sameSite: 'lax', path: '/' })
     tokenCookie.value = res.token
+    // Also persist to localStorage for client-side fetch fallback
+    if (process.client && typeof window !== 'undefined') {
+      try { window.localStorage.setItem('auth_token', res.token) } catch {}
+    }
     const userIdCookie = useCookie('auth_user_id', { sameSite: 'lax', path: '/' })
     // ensure string storage for cookie
     // @ts-ignore - backend may return number
