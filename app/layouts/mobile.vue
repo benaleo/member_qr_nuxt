@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50 pb-24">
+  <div class="min-h-screen bg-slate-800 text-slate-200 pb-24">
     <slot />
   </div>
   <MobileNav />

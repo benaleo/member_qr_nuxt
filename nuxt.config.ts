@@ -12,7 +12,38 @@ export default defineNuxtConfig({
     ],
   },
 
-  modules: ['@nuxt/ui'],
+  modules: ['@nuxt/ui', '@vite-pwa/nuxt'],
+
+  pwa: {
+    registerType: 'autoUpdate',
+    registerWebManifestInRouteRules: true,
+    devOptions: {
+      enabled: true
+    },
+    client: {
+      installPrompt: true,
+    },
+    manifest: {
+      name: 'Relextension',
+      short_name: 'Relextension',
+      start_url: '/',
+      scope: '/',
+      display: 'standalone',
+      background_color: '#ffffff',
+      theme_color: '#0ea5e9'
+    },
+    // Generate and inject PWA icons/assets from a single source image
+    pwaAssets: {
+      image: '../public/pwa-assets/apple-icon-180.png',
+      overrideManifestIcons: false
+    },
+    workbox: {
+      globPatterns: ['**/*.{js,css,html,ico,png,svg,webp}']
+    },
+    experimental: {
+      enableWorkboxPayloadQueryParams: true
+    }
+  },
 
   runtimeConfig: {
     public: {

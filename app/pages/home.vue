@@ -4,7 +4,11 @@ import { useCookie } from 'nuxt/app'
 import { getGamificationByCode, existsUserInGamification, createLogGamification, type Gamification } from '@/api/gamification-api'
 import MobileNav from '~/components/MobileNav.vue';
 
-definePageMeta({ layout: "mobile" });
+useHead({
+  title: 'Home',
+});
+
+definePageMeta({ layout: 'mobile' })
 
 const loading = ref(false)
 const lastCode = ref('')
@@ -53,7 +57,7 @@ async function onScanned(code: string) {
 
     // Not existed yet – create a log entry
     try {
-      const log = await createLogGamification(userId, Number(gam.id), today, 'Scan QR kehadiran', gam.point)
+      const log = await createLogGamification(userId, Number(gam.id), today, gam.description, gam.point)
       const pts = (log as any)?.point ?? gam.point
       alert(`Berhasil validasi: ${gam.name} (+${pts} poin)`) 
     } catch (e: any) {
@@ -119,5 +123,4 @@ async function onScanned(code: string) {
       </div>
     </UCard>
   </div>
-  <MobileNav/>
 </template>

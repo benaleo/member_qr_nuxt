@@ -44,32 +44,32 @@ async function onSubmit() {
       <h1 class="text-2xl font-bold text-center">Daftar Akun Baru</h1>
 
       <UForm :state="form" @submit="onSubmit" class="space-y-4">
-        <UFormGroup label="Nama Lengkap" name="name" required>
+        <UFormField label="Nama Lengkap" name="name" required>
           <UInput
             v-model="form.name"
             placeholder="Masukkan nama lengkap"
             class="form-input"
           />
-        </UFormGroup>
+        </UFormField>
 
-        <UFormGroup label="Username" name="username" required>
+        <UFormField label="Username" name="username" required>
           <UInput
             v-model="form.username"
             placeholder="Pilih username"
             class="form-input"
           />
-        </UFormGroup>
+        </UFormField>
 
-        <UFormGroup label="Email (Opsional)" name="email">
+        <UFormField label="Email (Opsional)" name="email">
           <UInput
             v-model="form.email"
             type="email"
             placeholder="email@contoh.com"
             class="form-input"
           />
-        </UFormGroup>
+        </UFormField>
 
-        <UFormGroup label="Password" name="password" required>
+        <UFormField label="Password" name="password" required>
           <UInput
             v-model="form.password"
             :type="showPassword ? 'text' : 'password'"
@@ -90,7 +90,7 @@ async function onSubmit() {
           <p class="text-xs text-gray-500 mt-1">
             Minimal 8 karakter
           </p>
-        </UFormGroup>
+        </UFormField>
 
         <UButton
           type="submit"

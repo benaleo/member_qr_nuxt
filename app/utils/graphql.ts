@@ -16,7 +16,15 @@ export async function gqlFetch<T>(query: string, variables?: Record<string, any>
   const endpoint = config.public.graphqlEndpoint
   if (!endpoint) throw new Error('GraphQL endpoint not configured')
 
-  const token = useCookie<string | null>('auth_token').value
+  // Prefer cookie; if not present (e.g. just written or httpOnly), fall back to localStorage on client
+  let token = useCookie<string | null>('auth_token').value as string | null
+  if (!token && process.client && typeof window !== 'undefined') {
+    try {
+      token = window.localStorage.getItem('auth_token')
+    } catch {
+      // ignore storage errors
+    }
+  }
 
   const res = await $fetch<GraphQLResponse<T>>(endpoint, {
     method: 'POST',

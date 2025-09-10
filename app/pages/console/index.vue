@@ -8,6 +8,9 @@ const authToken = useCookie<string | null>('auth_token')
 function logout() {
   // Clear auth token cookie and redirect to home/login
   authToken.value = null
+  if (process.client && typeof window !== 'undefined') {
+    try { window.localStorage.removeItem('auth_token') } catch {}
+  }
   navigateTo('/')
 }
 </script>

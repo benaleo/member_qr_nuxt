@@ -11,5 +11,4 @@ definePageMeta({ layout: 'mobile' })
       <p class="text-sm text-gray-600">Daftar hadiah akan tampil di sini.</p>
     </UCard>
   </div>
-  <MobileNav/>
 </template>
