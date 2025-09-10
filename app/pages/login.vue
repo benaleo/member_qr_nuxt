@@ -26,9 +26,9 @@ async function onSubmit() {
     const res = await loginApi({ ...form })
 
     // Store token and roles for subsequent requests
-    const tokenCookie = useCookie('auth_token', { sameSite: 'lax' })
+    const tokenCookie = useCookie('auth_token', { sameSite: 'lax', path: '/' })
     tokenCookie.value = res.token
-    const userIdCookie = useCookie('auth_user_id', { sameSite: 'lax' })
+    const userIdCookie = useCookie('auth_user_id', { sameSite: 'lax', path: '/' })
     // ensure string storage for cookie
     // @ts-ignore - backend may return number
     userIdCookie.value = String((res.user as any).id ?? '')
@@ -39,9 +39,9 @@ async function onSubmit() {
     else if (Array.isArray(rolesField)) roleNames = rolesField.map((r: any) => r?.name ?? r).filter(Boolean)
     else if (rolesField && typeof rolesField === 'object') roleNames = [rolesField.name].filter(Boolean)
     roleNames = roleNames.map((n: string) => String(n).toUpperCase())
-    const rolesCookie = useCookie('auth_roles', { sameSite: 'lax' })
+    const rolesCookie = useCookie('auth_roles', { sameSite: 'lax', path: '/' })
     rolesCookie.value = JSON.stringify(roleNames)
-    const roleCookie = useCookie('auth_role', { sameSite: 'lax' })
+    const roleCookie = useCookie('auth_role', { sameSite: 'lax', path: '/' })
     roleCookie.value = roleNames[0] || ''
 
     successMessage.value = `Halo, ${res.user.name}!`
@@ -49,8 +49,13 @@ async function onSubmit() {
     // Redirect based on role
     const isAdmin = roleNames.some((up: string) => up === 'ADMIN' || up === 'SUPERADMIN')
     const target = isAdmin ? '/console' : '/home'
-    await new Promise(r => setTimeout(r, 500))
-    await navigateTo(target)
+    // small delay to ensure cookies are flushed before route change
+    await new Promise(r => setTimeout(r, 250))
+    // debug: confirm cookie existence right before redirect
+    if (process.client) {
+      console.debug('[Login] Cookies before redirect:', document.cookie)
+    }
+    await navigateTo(target, { replace: true })
   } catch (err: any) {
     // errorMessage.value = err?.message || 'Login gagal.'
     toast.error(err?.message || 'Login gagal.', { position: 'top-center'})
@@ -67,11 +72,11 @@ async function onSubmit() {
 
       <UForm :state="form" @submit="onSubmit">
         <div class="grid gap-1">
-          <UFormGroup label="Username" name="username">
+          <UFormField label="Username" name="username">
             <UInput class="form-input" v-model="form.username" placeholder="Username" autocomplete="username" size="lg" />
-          </UFormGroup>
+          </UFormField>
 
-          <UFormGroup label="Password" name="password">
+          <UFormField label="Password" name="password">
             <UInput
               class="form-input"
               :type="showPassword ? 'text' : 'password'"
@@ -91,7 +96,7 @@ async function onSubmit() {
                 />
               </template>
             </UInput>
-          </UFormGroup>
+          </UFormField>
 
           <UButton type="submit" color="secondary" size="lg" block :loading="loading">
             Masuk

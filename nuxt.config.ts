@@ -12,7 +12,38 @@ export default defineNuxtConfig({
     ],
   },
 
-  modules: ['@nuxt/ui'],
+  modules: ['@nuxt/ui', '@vite-pwa/nuxt'],
+
+  pwa: {
+    registerType: 'autoUpdate',
+    registerWebManifestInRouteRules: true,
+    devOptions: {
+      enabled: false
+    },
+    client: {
+      installPrompt: true,
+    },
+    manifest: {
+      name: 'Nuxt App',
+      short_name: 'NuxtApp',
+      start_url: '/',
+      scope: '/',
+      display: 'standalone',
+      background_color: '#ffffff',
+      theme_color: '#0ea5e9'
+    },
+    // Generate and inject PWA icons/assets from a single source image
+    pwaAssets: {
+      image: 'public/logo.svg',
+      overrideManifestIcons: false
+    },
+    workbox: {
+      globPatterns: ['**/*.{js,css,html,ico,png,svg,webp}']
+    },
+    experimental: {
+      enableWorkboxPayloadQueryParams: true
+    }
+  },
 
   runtimeConfig: {
     public: {

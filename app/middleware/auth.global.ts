@@ -5,6 +5,13 @@ export default defineNuxtRouteMiddleware((to) => {
 
   const isPublic = to.path === '/' || to.path === '/login' || to.path === '/register'
 
+  if (process.client) {
+    // Debug current route and cookie snapshot
+    console.debug('[AuthMW] to.path =', to.path)
+    console.debug('[AuthMW] token.value =', token.value)
+    console.debug('[AuthMW] document.cookie =', document.cookie)
+  }
+
   function parseRoleNames(): string[] {
     try {
       if (!roles.value) {
@@ -41,6 +48,16 @@ export default defineNuxtRouteMiddleware((to) => {
 
   // Not logged in → allow only '/' and '/login' and '/register'
   if (!token.value) {
+    // If on client and cookie was just written but composable not yet updated, trust document.cookie
+    if (
+      process.client && typeof document !== 'undefined' && (
+        document.cookie.includes('auth_token=') ||
+        document.cookie.includes('auth_roles=') ||
+        document.cookie.includes('auth_role=')
+      )
+    ) {
+      return
+    }
     if (!isPublic) return navigateTo('/login')
     return
   }
