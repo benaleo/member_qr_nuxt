@@ -18,7 +18,7 @@ export default defineNuxtConfig({
     registerType: 'autoUpdate',
     registerWebManifestInRouteRules: true,
     devOptions: {
-      enabled: true
+      enabled: false
     },
     client: {
       installPrompt: true,
