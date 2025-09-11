@@ -30,11 +30,25 @@ export default defineNuxtConfig({
       scope: '/',
       display: 'standalone',
       background_color: '#ffffff',
-      theme_color: '#0ea5e9'
+      theme_color: '#0ea5e9',
+      icons: [
+        {
+          src: '/pwa-assets/manifest-icon-192.maskable.png',
+          sizes: '192x192',
+          type: 'image/png',
+          purpose: 'any maskable'
+        },
+        {
+          src: '/pwa-assets/manifest-icon-512.maskable.png',
+          sizes: '512x512',
+          type: 'image/png',
+          purpose: 'any maskable'
+        }
+      ]
     },
     // Generate and inject PWA icons/assets from a single source image
     pwaAssets: {
-      image: '../public/pwa-assets/apple-icon-180.png',
+      image: 'public/pwa-assets/pwa-icon.png',
       overrideManifestIcons: false
     },
     workbox: {
@@ -43,6 +57,24 @@ export default defineNuxtConfig({
     experimental: {
       enableWorkboxPayloadQueryParams: true
     }
+  },
+
+  // Ensure PWA assets are correctly served in preview/production
+  nitro: {
+    prerender: {
+      routes: ['/manifest.webmanifest']
+    }
+  },
+
+  // Avoid SPA fallback for PWA assets so Vue Router doesn't warn
+  routeRules: {
+    '/manifest.webmanifest': {
+      headers: {
+        'Content-Type': 'application/manifest+json'
+      }
+    },
+    '/sw.js': { isr: false },
+    '/workbox-*': { isr: false }
   },
 
   runtimeConfig: {
